@@ -65,5 +65,11 @@ namespace StockManagementAPI.Controllers
             return result != null ? Ok(result) :BadRequest("İşlem başarısız");
         }
 
+        [HttpGet("GetProductsWithCategory")]
+        public async Task<IActionResult> GetProductsWithCategory()
+        {
+            var resultProductsWithCaregory = await _productRepository.GetProductsWithCategory();
+            return Ok(resultProductsWithCaregory);
+        }
     }
 }

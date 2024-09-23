@@ -11,7 +11,7 @@ namespace StockManagementAPI.Services.Product
         public Task<ResultProductDto> GetProductByIdAsync(int id);
         public Task<bool> UpdateProductAsync(UpdateProductDto product);
         public Task<IEnumerable<ResultProductDto>> GetAllProductsAsync();
-        public Task<IEnumerable<ResultProductDto>> GetProductsByCategoryId(int id);
-
+        public Task<IEnumerable<ResultProductWithCategoryDto>> GetProductsByCategoryId(int id);
+        public Task<IEnumerable<ResultProductWithCategoryDto>> GetProductsWithCategory();
     }
 }

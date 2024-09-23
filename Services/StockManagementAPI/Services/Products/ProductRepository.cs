@@ -5,6 +5,9 @@ using StockManagementAPI.Dtos.ProductDtos;
 using StockManagementAPI.Dtos.PriceHistoryDtos;
 using Microsoft.AspNetCore.Mvc;
 using StockManagementAPI.Services.PriceHistories;
+using System.Security.Cryptography.X509Certificates;
+using System.Runtime.InteropServices;
+using StockManagementAPI.Dtos.CategoryDtos;
 
 namespace StockManagementAPI.Services.Product
 {
@@ -63,12 +66,25 @@ namespace StockManagementAPI.Services.Product
             }
         }
 
-        public async Task<IEnumerable<ResultProductDto>> GetProductsByCategoryId(int id)
+        public async Task<IEnumerable<ResultProductWithCategoryDto>> GetProductsByCategoryId(int id)
         {
             using (var connection = _dapperContext.CreateConnection())
             {
-                string sql = "SELECT * FROM Products WHERE CategoryId = @CategoryId";
-                var resultProducts = await connection.QueryAsync<ResultProductDto>(sql, new { CategoryId = id });
+                string selectCategory = "SELECT * FROM Categories WHERE CategoryId = @CategoryId ";
+                var resultCategory =await connection.QueryFirstOrDefaultAsync<ResultCategoryDto>(selectCategory, new { CategoryId = id });
+
+                string selectProducts = "SELECT * FROM Products WHERE CategoryId = @CategoryId";
+                var resultProducts = await connection.QueryAsync<ResultProductWithCategoryDto>(selectProducts, new { CategoryId = id });
+
+                foreach (var product in resultProducts)
+                {
+                    if(product.CategoryId == resultCategory.CategoryId)
+                    {
+                        product.Category = new CategoryModel();
+                        product.Category.CateoryId = resultCategory.CategoryId;
+                        product.Category.CategoryName= product.ProductName;
+                    }
+                }
 
                 return resultProducts;
             }
@@ -91,13 +107,13 @@ namespace StockManagementAPI.Services.Product
 
                 if (oldPrice != product.Price)
                 {
-                   var responseMessage = await _priceHistoryRepository.AddPriceHistoryAsync(new CreatePriceHistoryDto
+                    var responseMessage = await _priceHistoryRepository.AddPriceHistoryAsync(new CreatePriceHistoryDto
                     {
                         ChangeDate = DateTime.Now,
                         Cost = product.Cost,
-                        NewPrice =product.Price,
-                        OldPrice=oldPrice,
-                        ProductId=product.ProductId
+                        NewPrice = product.Price,
+                        OldPrice = oldPrice,
+                        ProductId = product.ProductId
                     });
 
                     if (responseMessage == false)
@@ -105,7 +121,32 @@ namespace StockManagementAPI.Services.Product
                 }
 
                 return result >= 0;
+            }
+        }
 
+        public async Task<IEnumerable<ResultProductWithCategoryDto>> GetProductsWithCategory()
+        {
+            using (var connection = _dapperContext.CreateConnection())
+            {
+                string selectCategories = "SELECT * FROM Categories";
+                var resultCategories = await connection.QueryAsync<ResultCategoryDto>(selectCategories);
+
+                string selectProducts = "SELECT * FROM Products";
+                var resultProducts = await connection.QueryAsync<ResultProductWithCategoryDto>(selectProducts);
+
+                foreach (var category in resultCategories)
+                {
+                    foreach (var product in resultProducts)
+                    {
+                        if (product.CategoryId != category.CategoryId)
+                            continue;
+
+                        product.Category = new CategoryModel();
+                        product.Category.CateoryId = category.CategoryId;
+                        product.Category.CategoryName = category.CategoryName;
+                    }
+                }
+                return resultProducts;
             }
         }
     }

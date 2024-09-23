@@ -1,0 +1,75 @@
+﻿@using StockManagementUI.Dtos.ProductDtos
+@model List<ResultProductWithCategoryDto>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
+}
+
+
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="mt-2">Kategoriler</h5>
+            <form method="get" action="@Url.Action("Index", "Product")">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="form-group flex-grow-1">
+                        <select class="form-control" id="basicSelect" name="categoryFilterId">
+                            <option name="categoryFilterId" value="">Tüm Kategoriler</option>
+                            @foreach (var category in ViewBag.Categories)
+                            {
+                                <option name="categoryFilterId" value="@category.CategoryId">@category.CategoryName</option>
+                            }
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary ml-1" style="margin-top:-20px">Filtrele</button>
+
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<div class="content-body">
+    <!-- Basic Tables start -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-content collapse show">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Ürün</th>
+                                        <th>Kategori</th>
+                                        <th>Maliyet</th>
+                                        <th>Fiyat</th>
+                                        <th>Düzenle / Sil</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>@item.ProductName</td>
+                                            <td>@item.Category.CategoryName</td>
+                                            <td>@item.Cost</td>
+                                            <td>@item.Price</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
