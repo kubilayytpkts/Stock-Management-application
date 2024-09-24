@@ -5,7 +5,7 @@
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
 }
-
+<link href="~/css/alert.css" rel="stylesheet" />
 
 <div class="container mt-5">
     <div class="card">
@@ -15,27 +15,21 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="form-group flex-grow-1">
                         <select class="form-control" id="basicSelect" name="categoryFilterId">
-                            <option name="categoryFilterId" value="">Tüm Kategoriler</option>
+                            <option value="">Tüm Kategoriler</option>
                             @foreach (var category in ViewBag.Categories)
                             {
-                                <option name="categoryFilterId" value="@category.CategoryId">@category.CategoryName</option>
+                                <option value="@category.CategoryId">@category.CategoryName</option>
                             }
                         </select>
                     </div>
                     <button type="submit" class="btn btn-primary ml-1" style="margin-top:-20px">Filtrele</button>
-
                 </div>
             </form>
         </div>
-
     </div>
-
 </div>
 
-
-
 <div class="content-body">
-    <!-- Basic Tables start -->
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -49,7 +43,9 @@
                                         <th>Kategori</th>
                                         <th>Maliyet</th>
                                         <th>Fiyat</th>
+                                        <th>Stok Adet</th>
                                         <th>Düzenle / Sil</th>
+                                        <th>Stok İşlemleri</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -60,7 +56,26 @@
                                             <td>@item.Category.CategoryName</td>
                                             <td>@item.Cost</td>
                                             <td>@item.Price</td>
+                                            <td>@item.StockQuantity</td>
+                                            <td>
+                                                <a href="@Url.Action("UpdateProduct", "Product", new { productId = item.ProductId })" class="btn btn-primary">Düzenle</a>
+                                                <a href="/Product/Delete/@item.ProductId" class="btn btn-danger" onclick="return confirm('Bu ürünü silmek istediğinize emin misiniz?');">Sil</a>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-success" onclick="openStockModal('Giris', @item.ProductId)">Stok Ekle</button>
+                                                <button class="btn btn-warning" onclick="openStockModal('Cikis', @item.ProductId)">Stok Çıkar</button>
+                                            </td>
+                                           <td>
+                                               @if(@item.StockQuantity <= @item.MinimumStockLevel)
+                                                {
+                                                    <script>
+                                                        alert('@item.ProductName minimum stok seviyesini geçmiş durumdadır!');
+                                                    </script>
+                                                }
+                                           </td>
+
                                         </tr>
+
                                     }
                                 </tbody>
                             </table>
@@ -70,6 +85,62 @@
             </div>
         </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</div>
+
+
+<div class="modal fade" id="stockModal" tabindex="-1" role="dialog" aria-labelledby="stockModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="stockModalLabel">Stok İşlemi</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="number" id="quantity" class="form-control" placeholder="Miktar" required />
+                <input type="hidden" id="action" />
+                <input type="hidden" id="productId" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                <button type="button" class="btn btn-primary" id="confirmStockChange">Tamam</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    function openStockModal(action, productId) {
+        $('#action').val(action);
+        $('#productId').val(productId);
+        $('#stockModal').modal('show');
+    }
+
+    $('#confirmStockChange').click(function () {
+        const quantity = $('#quantity').val();
+        const action = $('#action').val();
+        const productId = $('#productId').val();
+
+        $.ajax({
+            url: `/StockMovements/ChangeStockQuantity`, // Sunucuya istek yapacağımız URL
+            type: 'POST',
+            data: {
+                ProductId: productId,
+                Quantity: quantity,
+                MovementType: action
+            },
+            success: function (response) {
+                $('#stockModal').modal('hide'); // Modalı kapat
+                location.reload(); 
+            },
+            error: function () {
+                alert('Bir hata oluştu!'); // Hata mesajı göster
+            }
+        });
+    });
+</script>

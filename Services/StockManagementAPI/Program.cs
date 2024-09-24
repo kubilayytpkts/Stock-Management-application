@@ -2,14 +2,18 @@ using StockManagementAPI.Context;
 using StockManagementAPI.Services.Categories;
 using StockManagementAPI.Services.PriceHistories;
 using StockManagementAPI.Services.Product;
+using StockManagementAPI.Services.StockMovements;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<DapperContext>();
+builder.Services.AddHttpClient();
+
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IPriceHistoryRepository, PriceHistoryRepository>();
+builder.Services.AddScoped<IStockMovementRepository, StockMovementRepository>();
 
 // Add services to the container.
 

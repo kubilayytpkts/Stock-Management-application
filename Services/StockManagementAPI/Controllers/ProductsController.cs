@@ -42,7 +42,7 @@ namespace StockManagementAPI.Controllers
             return result == true ? NoContent() :BadRequest(result); 
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{productId}")]
         public async Task<IActionResult> GetByIdProduct(int productId)
         {
             var result = await _productRepository.GetProductByIdAsync(productId);

@@ -19,6 +19,9 @@ namespace StockManagementAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> AddStockMovement(CreateStockMovementDto stockMovement)
         {
+            if(stockMovement.MovementDate == null)
+                stockMovement.MovementDate = DateTime.Now;
+
             var result = await _stockMovementRepository.CreateStockMovementAsync(stockMovement);
             return result == true ? Ok() : BadRequest(result);
         }

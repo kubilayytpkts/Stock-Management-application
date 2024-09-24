@@ -1,0 +1,50 @@
+﻿@using StockManagementUI.Dtos.ProductDtos
+@model ResultProductWithCategoryDto
+
+@{
+    ViewData["Title"] = "UpdateProduct";
+    Layout = "~/Views/Shared/_LayoutDashboard.cshtml";
+}
+
+<link href="~/css/form.css" rel="stylesheet" />
+<br />
+<form action="@Url.Action("UpdateProduct","Product")" method="post">
+    <div class="form-group">
+        <label for="ProductName">Ürün Adı</label>
+        <input type="hidden" value="@Model.ProductId" name="ProductId" />
+        <input type="text" class="form-control" id="ProductName" name="ProductName" value="@Model.ProductName" required />
+    </div>
+
+    <div class="form-group">
+        <label for="CategoryId">Kategori</label>
+        <select class="form-control" id="CategoryId" name="CategoryId" required>
+            @foreach (var category in ViewBag.SelectListCategory)
+            {
+                <option value="@category.Value" @(category.Value == Model.CategoryId.ToString() ? "selected" : "")>
+                    @category.Text
+                </option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="Cost">Maliyet</label>
+        <input type="text" class="form-control" name="Cost" value="@Model.Cost" required />
+    </div>
+
+    <div class="form-group">
+        <label >Fiyat</label>
+        <input type="text" class="form-control" name="Price" value="@Model.Price" required />
+    </div> 
+    
+    <div class="form-group">
+        <label>Stok Adet</label>
+        <input type="number" class="form-control" name="StockQuantity" value="@Model.StockQuantity" required />
+    </div>
+    <div class="form-group">
+        <label style="color:red;">Stok Uyarı(Stok seviyesi girdiğiniz değere düştüğü zaman uyarı alıcaksınız !)</label>
+        <input type="number" class="form-control" name="MinimumStockLevel" value="@Model.MinimumStockLevel" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Kaydet</button>
+</form>
